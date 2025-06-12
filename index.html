@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cartão Dia dos Namorados</title>
+  <style>
+    /* (mesmo CSS anterior, mantido aqui para brevidade) */
+    body {
+      background: #e0f0ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #003366;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #ffffff;
+      max-width: 600px;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px 5px #3399ff80;
+      line-height: 1.6;
+      position: relative;
+      animation: brilho 3s infinite alternate;
+    }
+    @keyframes brilho {
+      from { box-shadow: 0 0 15px #66ccff; }
+      to { box-shadow: 0 0 25px #3399ff; }
+    }
+    h1 {
+      color: #0059b3;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+      font-size: 2.5rem;
+      letter-spacing: 3px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      user-select: none;
+    }
+    .letter {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #004080;
+      cursor: default;
+    }
+    .connector {
+      width: 60px;
+      height: 8px;
+      background: #3399ff;
+      border-radius: 4px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 8px 3px #3399ff99; opacity: 1; }
+      50% { box-shadow: 0 0 20px 10px #3399ff33; opacity: 0.6; }
+    }
+    p {
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+    .highlight {
+      font-weight: 700;
+      color: #004080;
+    }
+    .footer {
+      margin-top: 30px;
+      font-style: italic;
+      text-align: center;
+      color: #0066cc;
+      font-size: 1rem;
+    }
+    .data {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #007acc;
+    }
+    .secreto {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .secreto button {
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      background: transparent;
+      color: #e0f0ff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .secreto p {
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #cc0033;
+    }
+    input, button {
+      font-size: 1rem;
+    }
+    #joguinho {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .coracao {
+      font-size: 2rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .coracao:hover {
+      transform: scale(1.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="jogoReflexo">
+      <h2 style="text-align:center; color:#004080;">acerte o coração</h2>
+      <p style="text-align:center">amor clique no coração certo</p>
+      <div id="joguinho"></div>
+      <p id="resultadoJogo" style="text-align:center; font-weight:bold; margin-top: 10px;"></p>
+    </div>
+
+    <div id="quiz" style="display:none;">
+      <h2 style="text-align:center; color:#004080;">Pergunta pra ver se me conhece msm</h2>
+      <p><strong>1. Qual é meu jogador preferido? Dica: não é o óbvio</strong></p>
+      <input type="text" id="q1" placeholder="Jogador..."><br><br>
+
+      <p><strong>2. Quem foi campeão da Champions no ano que eu nasci? NÃO VALE PESQUISAR</strong></p>
+      <input type="text" id="q2" placeholder="Time..."><br><br>
+
+      <div id="extraPergunta" style="display:none;">
+        <p><strong>2.1 Eu gosto desse time?</strong></p>
+        <input type="text" id="q2extra" placeholder="Sim ou não..."><br><br>
+      </div>
+
+      <p><strong>3. Qual o nome da nossa música?</strong></p>
+      <input type="text" id="q3" placeholder="Nome da música..."><br><br>
+
+      <button onclick="verificarRespostas()">Enviar</button>
+      <p id="feedbackQuiz" style="margin-top: 10px; font-weight: bold;"></p>
+    </div>
+
+    <div id="conteudoCarta" style="display: none;">
+      <h1><span class="letter">Y</span><div class="connector"></div><span class="letter">D</span></h1>
+      <p>Oi, minha princesa,</p>
+      <p>Gostaria de expressar a emoção que estou sentindo por estar, mais um ano, comemorando o Dia dos Namorados com você...</p>
+      <!-- (todo o texto da carta aqui, mantido como estava) -->
+      <div class="footer">De Yuri pra Dudinhadia</div>
+      <div class="data">12/06/2025</div>
+      <div class="secreto">
+        <button onclick="mostrarMensagem()">não clique aqui</button>
+        <p id="resposta" style="display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎵 MÚSICA -->
+  <audio id="musica" loop>
+    <source src="nossa musica.mp3" type="audio/mpeg">
+    Seu navegador não suporta áudio.
+  </audio>
+
+  <script>
+    function gerarCorações() {
+      const container = document.getElementById('joguinho');
+      container.innerHTML = '';
+      const total = 12;
+      const certo = Math.floor(Math.random() * total);
+
+      for (let i = 0; i < total; i++) {
+        const c = document.createElement('div');
+        c.innerHTML = '❤️';
+        c.className = 'coracao';
+        if (i === certo) {
+          c.onclick = () => {
+            document.getElementById('resultadoJogo').innerText = 'acertouu dudinha';
+            document.getElementById('jogoReflexo').style.display = 'none';
+            document.getElementById('quiz').style.display = 'block';
+          };
+        } else {
+          c.onclick = () => {
+            document.getElementById('resultadoJogo').innerText = 'burra tente dnv';
+          };
+        }
+        container.appendChild(c);
+      }
+    }
+    gerarCorações();
+
+    function verificarRespostas() {
+      const q1 = document.getElementById('q1').value.trim().toLowerCase();
+      const q2 = document.getElementById('q2').value.trim().toLowerCase();
+      const q3 = document.getElementById('q3').value.trim().toLowerCase();
+      const q2extraDiv = document.getElementById('extraPergunta');
+      const feedback = document.getElementById('feedbackQuiz');
+
+      if (q1 === "janderson" && q2 === "barcelona") {
+        q2extraDiv.style.display = "block";
+        const q2extra = document.getElementById('q2extra').value.trim().toLowerCase();
+
+        if (q2extra === "não" || q2extra === "nao") {
+          if (q3 === "uma dose 2") {
+            feedback.style.color = "green";
+            feedback.innerText = "Acertou tudo vc e barril minha linda";
+            document.getElementById('quiz').style.display = "none";
+            document.getElementById('conteudoCarta').style.display = "block";
+
+            // Tocar música
+            const audio = document.getElementById('musica');
+            audio.play().catch((e) => {
+              console.warn("A música precisa de uma interação do usuário:", e);
+            });
+          } else {
+            feedback.style.color = "red";
+            feedback.innerText = "rapaz eu não acredito nisso";
+          }
+        } else if (q2extra !== "") {
+          feedback.style.color = "red";
+          feedback.innerText = "burra pra crl me conhece nn e";
+        } else {
+          feedback.innerText = "Responde a pergunta 2.1!";
+        }
+      } else {
+        feedback.style.color = "red";
+        feedback.innerText = "vc errou vei tente dnv ai";
+      }
+    }
+
+    let mensagens = [
+      "tem certeza?",
+      "vai se arrepender vei",
+      "deixe de maluquice mermao",
+      "não faça isso",
+      "vc vai se irritar bote fe",
+      "vc e teimosa viu velho",
+      "opai que porrinha curiosa",
+      "rpz inacreditavel",
+      "clicar de novo é burrice",
+      "blz vai ter que pagar"
+    ];
+
+    let etapa = 0;
+
+    function mostrarMensagem() {
+      const p = document.getElementById('resposta');
+      if (etapa < mensagens.length) {
+        p.innerText = mensagens[etapa];
+        p.style.display = "block";
+        etapa++;
+      } else {
+        p.innerText = "me deve uma mamada agora se fudeukkkkkkkkkk";
+      }
+    }
+  </script>
+</body>
+</html>
